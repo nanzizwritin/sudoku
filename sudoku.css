@@ -1,0 +1,28 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(9, 40px);
+  grid-template-rows: repeat(9, 40px);
+}
+.buttons {
+
+  grid-template-rows: repeat(11, 40px);
+  display: flex;
+  flex-wrap: nowrap;
+
+}
+.cell {
+  border: 1px solid black;
+  height: 40px;
+  width: 40px;
+  text-align: center;
+  line-height: 40px;
+}
+.buttonqualities {
+  width: 40px;
+  height: 40px;
+  margin: 3px;
+  font-size: 16px;
+  border: 1px solid black;
+  background-color: white;
+  cursor: pointer;
+}

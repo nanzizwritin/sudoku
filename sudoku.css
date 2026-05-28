@@ -23,6 +23,8 @@ body{
   width: 40px;
   text-align: center;
   line-height: 40px;
+  box-sizing:border-box;
+  
 }
 .buttonqualities {
   width: 40px;

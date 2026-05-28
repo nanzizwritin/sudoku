@@ -26,9 +26,27 @@ for (let i = 0; i < 9; i++) {
   grid.appendChild(cell);
   //myItems.splice(2, 0, newDiv); 
   inparr[i][u] = cell;
+  cell.className = "cell";
+  if (i % 3 === 0) {
+    cell.style.borderTop = "3px solid black";
+}
+
+if (u % 3 === 0) {
+    cell.style.borderLeft = "3px solid black";
+}
+
+if (i === 8) {
+    cell.style.borderBottom = "3px solid black";
+}
+
+if (u === 8) {
+    cell.style.borderRight = "3px solid black";
+}
   cell.addEventListener("click", function () {
   selectedCell = cell;
-});
+}
+
+);
 }
 }
 // stort of putting values in grid

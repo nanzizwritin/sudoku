@@ -1,3 +1,19 @@
+//sewd
+let seed = Number(
+  new Date().toISOString().slice(0,10).replaceAll("-", "")
+);
+
+function seededRandom() {
+  let x = Math.sin(seed++) * 10000;
+  return x - Math.floor(x);
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    let j = Math.floor(seededRandom() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
 // start to create grid
 let selectedCell = null;
 let inparr = [[],[],[],[],[],[],[],[],[]];
@@ -18,64 +34,9 @@ for (let i = 0; i < 9; i++) {
 // stort of putting values in grid
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
-    let j = Math.floor(Math.random() * (i + 1));
+    let j = Math.floor(seededRandom() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-}
-
-function checker(num, board, y, x) {
-
-  for (let i = 0; i < 9; i++) {
-    if (board[y][i] === num) return false;
-    if (board[i][x] === num) return false;
-  }
-
-  const r = Math.floor(y / 3) * 3;
-  const c = Math.floor(x / 3) * 3;
-
-  for (let i = r; i < r + 3; i++) {
-    for (let j = c; j < c + 3; j++) {
-
-      if (board[i][j] === num) {
-        return false;
-      }
-
-    }
-  }
-
-  return true;
-}
-
-function solveSudokuRandom(board) {
-
-  for (let y = 0; y < 9; y++) {
-    for (let x = 0; x < 9; x++) {
-
-      if (board[y][x] === 0) {
-
-        let nums = [1,2,3,4,5,6,7,8,9];
-        shuffle(nums);
-
-        for (let num of nums) {
-
-          if (checker(num, board, y, x)) {
-
-            board[y][x] = num;
-
-            if (solveSudokuRandom(board)) {
-              return true;
-            }
-
-            board[y][x] = 0;
-          }
-        }
-
-        return false;
-      }
-    }
-  }
-
-  return true;
 }
 
 let solutions = 0;
@@ -87,7 +48,9 @@ function countSolutions(board) {
 
       if (board[y][x] === 0) {
 
-        for (let num = 1; num <= 9; num++) {
+        let nums = [1,2,3,4,5,6,7,8,9];
+
+        for (let num of nums) {
 
           if (checker(num, board, y, x)) {
 
@@ -107,9 +70,8 @@ function countSolutions(board) {
   solutions++;
 }
 
-function generatePuzzle(removeAmount) {
+function generateSudoku(removeAmount) {
 
-  // create empty board
   let board = [
     [0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0],
@@ -122,14 +84,14 @@ function generatePuzzle(removeAmount) {
     [0,0,0,0,0,0,0,0,0]
   ];
 
-  // generate solved board
-  solveSudokuRandom(board);
+  solveSudoku(board);
 
-  // remove cells while keeping one solution
+  let solvedBoard = board.map(row => [...row]);
+
   while (removeAmount > 0) {
 
-    let row = Math.floor(Math.random() * 9);
-    let col = Math.floor(Math.random() * 9);
+    let row = Math.floor(seededRandom() * 9);
+    let col = Math.floor(seededRandom() * 9);
 
     if (board[row][col] === 0) continue;
 
@@ -140,9 +102,9 @@ function generatePuzzle(removeAmount) {
     let testBoard = board.map(r => [...r]);
 
     solutions = 0;
+
     countSolutions(testBoard);
 
-    // if more than one solution undo
     if (solutions !== 1) {
       board[row][col] = backup;
     } else {
@@ -150,11 +112,17 @@ function generatePuzzle(removeAmount) {
     }
   }
 
-  return board;
+  return {
+    puzzle: board,
+    solution: solvedBoard
+  };
 }
 
+
 // example
-let sudoku = generatePuzzle(50);
+let game = generateSudoku(50);
+
+let sudoku = game.puzzle;
 
 
 

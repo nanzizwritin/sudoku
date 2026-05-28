@@ -16,25 +16,159 @@ for (let i = 0; i < 9; i++) {
 }
 }
 // stort of putting values in grid
-let sudoku = [
- [5,3,0,0,7,0,0,0,0],
- [6,0,0,1,9,5,0,0,0],
- [0,9,8,0,0,0,0,6,0],
- [8,0,0,0,6,0,0,0,3],
- [4,0,0,8,0,3,0,0,1],
- [7,0,0,0,2,0,0,0,6],
- [0,6,0,0,0,0,2,8,0],
- [0,0,0,4,1,9,0,0,5],
- [0,0,0,0,8,0,0,7,9]
-];
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function checker(num, board, y, x) {
+
+  for (let i = 0; i < 9; i++) {
+    if (board[y][i] === num) return false;
+    if (board[i][x] === num) return false;
+  }
+
+  const r = Math.floor(y / 3) * 3;
+  const c = Math.floor(x / 3) * 3;
+
+  for (let i = r; i < r + 3; i++) {
+    for (let j = c; j < c + 3; j++) {
+
+      if (board[i][j] === num) {
+        return false;
+      }
+
+    }
+  }
+
+  return true;
+}
+
+function solveSudokuRandom(board) {
+
+  for (let y = 0; y < 9; y++) {
+    for (let x = 0; x < 9; x++) {
+
+      if (board[y][x] === 0) {
+
+        let nums = [1,2,3,4,5,6,7,8,9];
+        shuffle(nums);
+
+        for (let num of nums) {
+
+          if (checker(num, board, y, x)) {
+
+            board[y][x] = num;
+
+            if (solveSudokuRandom(board)) {
+              return true;
+            }
+
+            board[y][x] = 0;
+          }
+        }
+
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+let solutions = 0;
+
+function countSolutions(board) {
+
+  for (let y = 0; y < 9; y++) {
+    for (let x = 0; x < 9; x++) {
+
+      if (board[y][x] === 0) {
+
+        for (let num = 1; num <= 9; num++) {
+
+          if (checker(num, board, y, x)) {
+
+            board[y][x] = num;
+
+            countSolutions(board);
+
+            board[y][x] = 0;
+          }
+        }
+
+        return;
+      }
+    }
+  }
+
+  solutions++;
+}
+
+function generatePuzzle(removeAmount) {
+
+  // create empty board
+  let board = [
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0]
+  ];
+
+  // generate solved board
+  solveSudokuRandom(board);
+
+  // remove cells while keeping one solution
+  while (removeAmount > 0) {
+
+    let row = Math.floor(Math.random() * 9);
+    let col = Math.floor(Math.random() * 9);
+
+    if (board[row][col] === 0) continue;
+
+    let backup = board[row][col];
+
+    board[row][col] = 0;
+
+    let testBoard = board.map(r => [...r]);
+
+    solutions = 0;
+    countSolutions(testBoard);
+
+    // if more than one solution undo
+    if (solutions !== 1) {
+      board[row][col] = backup;
+    } else {
+      removeAmount--;
+    }
+  }
+
+  return board;
+}
+
+// example
+let sudoku = generatePuzzle(50);
+
+
+
+
+let changingsudo = sudoku.map(row => [...row]);
 for (let i = 0; i < 9; i++) {
     for (let u = 0; u < 9; u++) {
         if (sudoku[i][u]>0){
             inparr[i][u].textContent = sudoku[i][u];
             inparr[i][u].style.backgroundColor = "#D3D3D3";
-        }
+            inparr[i][u].dataset.locked = "true";
+            changingsudo[i][u] = sudoku[i][u];
 }
-}
+}}
 //buttons
 let butto = [];
 const buttons = document.getElementById("buttons");
@@ -58,31 +192,19 @@ for (let i = 0; i < 10; i++){
     const col = Number(selectedCell.dataset.col);
     // check if original value was 0
     if (sudoku[row][col] == 0) {
+      inparr[row][col].dataset.locked = "false";
       if (this.textContent==0){
         selectedCell.textContent = ""
-        inparr[row][col] = 0;
+        changingsudo[row][col] = 0;
       } else {
       selectedCell.textContent = this.dataset.value;
-      inparr[row][col] = Number(this.dataset.value);
+      changingsudo[row][col] = Number(this.dataset.value);
+      inparr[row][col].style.backgroundColor = "#ffffffff";
       }
     }
 
   }
-  if (selectedCell) {
 
-    if (selectedCell.dataset.locked === "true") return;
-
-    const row = Number(selectedCell.dataset.row);
-    const col = Number(selectedCell.dataset.col);
-
-    if (sudoku[row][col] == 0) {
-      if (this.dataset.value == 0) {
-        selectedCell.textContent = "";
-      } else {
-        selectedCell.textContent = this.dataset.value;
-      }
-    }
-  }
 }
 )};
 
@@ -141,26 +263,26 @@ function solveSudoku(sudoku) {
     return true;
 };
 let ss = sudoku.map(row => [...row]);
-solvesudo(ss);
+solveSudoku(ss);
+console.log(ss)
+
 check.addEventListener("click", function () {
-
-  for (let i = 0; i < 9; i++) {
-    for (let u = 0; u < 9; u++) {
-
-      const cell = inparr[i][u];
-
-      // skip original fixed cells
-      if (sudoku[i][u] !== 0) continue;
-
-      const userVal = Number(cell.textContent);
-
-      if (userVal === ss[i][u]) {
-        cell.style.backgroundColor = "lightgreen";
-        cell.dataset.locked = "true";
-      } else {
-        cell.style.backgroundColor = "#ffcccc"; // light red (optional)
+  for (let y = 0; y<9; y++){
+    for (let x = 0; x<9; x++){
+      if (inparr[y][x].dataset.locked=="false"){
+        if (changingsudo[y][x] != 0){
+          if (changingsudo[y][x] == ss[y][x]){
+            inparr[y][x].dataset.locked=="true"
+            sudoku[y][x]=ss[y][x]
+            inparr[y][x].style.backgroundColor = "#b8eba0ff";
+          }
+          else{
+            inparr[y][x].style.backgroundColor = "#ebb2a0ff";
+          }
+        }
       }
     }
   }
+ 
 
 });

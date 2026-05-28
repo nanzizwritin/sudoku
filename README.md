@@ -1,3 +1,3 @@
 Sudoku
 
-1st game in my series to create a minigames websie.
+1st game in my series to create a minigames website.
